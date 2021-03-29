@@ -1,0 +1,6 @@
+/.vs/
+/bin/
+/bin/*
+bin/
+/bin/**/*packages/**
+packages
