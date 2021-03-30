@@ -32,15 +32,10 @@ namespace StreamerPlusApp
             cef["streamlabs"] = streamlabs;
             cef["youtube"].FrameLoadEnd += new System.EventHandler<CefSharp.FrameLoadEndEventArgs>(FrameLoadEnd);
             cef["streamlabs"].FrameLoadEnd += new System.EventHandler<CefSharp.FrameLoadEndEventArgs>(FrameLoadEnd);
-            cef["youtube"].FrameLoadStart += new System.EventHandler<CefSharp.FrameLoadStartEventArgs>(FrameLoadStart);
-            cef["streamlabs"].FrameLoadStart += new System.EventHandler<CefSharp.FrameLoadStartEventArgs>(FrameLoadStart);
+            cef["youtube"].AddressChanged += new System.EventHandler<CefSharp.AddressChangedEventArgs>(OnPreLoad);
+            cef["streamlabs"].AddressChanged += new System.EventHandler<CefSharp.AddressChangedEventArgs>(OnPreLoad);
 
-            wait_15sec = new Thread(()=>{
-                Thread.Sleep(25 * 1000);
-                cef["youtube"].Load(Urls.youtube["chat"] + "LoginError");
-                cef["streamlabs"].Load(Urls.streamlabs["events"]);
-                MessageBox.Show("נראה שלוקח יותר מידי זמן להתחבר,\nמעביר אותך לדף הבית של סטרימר פלוס - יתכן שתצטרך להתחבר למשתמש שלך בהגדרות.","תקלה בהתחברות");
-            });
+            wait_15sec = new Thread(TimeoutThread);
             wait_15sec.Name = "Login Timout";
             wait_15sec.IsBackground = true;
             wait_15sec.Start();
@@ -96,12 +91,23 @@ namespace StreamerPlusApp
             #endregion
         }
 
-        static void FrameLoadStart(object sender, FrameLoadStartEventArgs e)
+        static void OnPreLoad(object sender, AddressChangedEventArgs e)
         {
             string address = e.Browser.FocusedFrame.Url;
+
+
+            ToolTip t = new ToolTip();
+            Safe.Invoke(() =>
+            {
+                t.AutoPopDelay = (30);
+                t.SetToolTip(mainForm_ref.loadingText, address);
+            });
+
             if (address.Contains("/livestreaming") && address.Contains("/video/"))
             {
+                ChromiumWebBrowser browserRef = ((ChromiumWebBrowser)sender);
                 Safe.Invoke(() => { mainForm_ref.loadingText.Text = "מזהה לייב פעיל..."; });
+                OnLiveStreamPage(browserRef);
                 return;
             }
             //if the page is livestream studio BEFORE the live actully loads in
@@ -114,10 +120,14 @@ namespace StreamerPlusApp
 
         static void FrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
+
             ChromiumWebBrowser browserRef = ((ChromiumWebBrowser)sender);
             string browser_name = (browserRef.Equals(cef["youtube"])) ? "youtube" : "streamlabs";
             Handle_delayed_JS(browser_name, e.Frame);
             browserRef.SetZoomLevel(Properties.Settings.Default.scale);//set the zoom level from settings
+
+            if (!e.Frame.IsMain)
+                return;
 
             //if current page is google account login
             if (browserRef.Address.Contains(Urls.youtube["minLoginURL"]))
@@ -141,7 +151,7 @@ namespace StreamerPlusApp
             //if the page is livestream studio
             if (browserRef.Address.Contains("/livestreaming") && browserRef.Address.Contains("/video/"))
             {
-                OnLiveStreamPage(browserRef);
+                //OnLiveStreamPage(browserRef);
                 return;
             }
             if (browserRef.Address.Contains(Urls.youtube["chat"]) && !browserRef.Address.Contains("LoginError"))
@@ -226,18 +236,27 @@ namespace StreamerPlusApp
         }
         static void OnRawLiveStreamPage()
         {
-            if (wait_15sec.IsAlive)
+            if(!wait_15sec.IsAlive)
             {
-                wait_15sec.Abort();
+                wait_15sec = new Thread(TimeoutThread);
+                wait_15sec.Name = "Login Timout";
+                wait_15sec.IsBackground = true;
+                wait_15sec.Start();
             }
+
             Safe.Invoke(() =>
             {
                 mainForm_ref.ToggleLoading(2);
-                mainForm_ref.loadingText.Text = "טוען משתמש...";
+                mainForm_ref.loadingText.Text = "טוען דשבורד...";
             });
         }
         static void OnLiveStreamPage(ChromiumWebBrowser browser)
         {
+            if (wait_15sec.IsAlive)
+            {
+                wait_15sec.Abort();
+            }
+
             mainForm_ref.subCount.ReloadUrl();
             string address = browser.Address;
             string liveID = "";
@@ -257,9 +276,10 @@ namespace StreamerPlusApp
             else
                 mainForm_ref.chatID = liveID;
 
-
+            Thread.Sleep(500);
             Safe.Invoke(() =>
             {
+                mainForm_ref.loadingText.Text = "טוען צאט...";
                 cef["streamlabs"].Load(Urls.streamlabs["events"]);
                 cef["youtube"].Load(Urls.youtube["chat"] + liveID);
             });
@@ -272,6 +292,15 @@ namespace StreamerPlusApp
             Inject_CSS("chat", browser);
         }
         #endregion
+
+        static void TimeoutThread()
+        {
+            Thread.Sleep(20 * 1000);
+            cef["youtube"].Load(Urls.youtube["chat"] + "LoginError");
+            cef["streamlabs"].Load(Urls.streamlabs["events"]);
+            MessageBox.Show("נראה שלוקח יותר מידי זמן להתחבר,\nמעביר אותך לדף הבית של סטרימר פלוס - יתכן שתצטרך להתחבר למשתמש שלך בהגדרות.", "תקלה בהתחברות");
+
+        }
     }
 
     public static class FastBrowser
