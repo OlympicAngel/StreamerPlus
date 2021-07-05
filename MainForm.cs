@@ -383,7 +383,10 @@ namespace StreamerPlusApp
         }
         private void Button2_Click(object sender, EventArgs e)
         {
-            string injectScript = @"window.open('https://www.olympicangelabz.com/pages/stream-settings/full.php', '_blank', 'location=false,height=400,width=950,scrollbars=yes,status=yes');";
+            int width = Screen.PrimaryScreen.WorkingArea.Width,
+                height = Screen.PrimaryScreen.WorkingArea.Height;
+            
+            string injectScript = @"window.open('https://www.olympicangelabz.com/pages/stream-settings/full.php','_blank', 'location=false,height=" + height.ToString() + ",width=" + width.ToString() + ",top=0,left=0,scrollbars=yes,status=yes');";
             if (ChatBrowser.CanExecuteJavascriptInMainFrame)
                 this.ChatBrowser.ExecuteScriptAsyncWhenPageLoaded(injectScript);
         }

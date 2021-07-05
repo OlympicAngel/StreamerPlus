@@ -60,6 +60,7 @@ namespace StreamerPlusApp
 
             var settings = new CefSettings
             {
+                LogSeverity = LogSeverity.Disable,
                 WindowlessRenderingEnabled = true,
                 BrowserSubprocessPath = System.IO.Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, Environment.Is64BitProcess ? "x64" : "x86", "CefSharp.BrowserSubprocess.exe"),
                 BackgroundColor = Util.ColorToUInt(System.Drawing.Color.FromArgb(255, 56, 56, 56)),

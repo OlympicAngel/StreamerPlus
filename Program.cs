@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace StreamerPlusApp
 {
@@ -20,13 +21,34 @@ namespace StreamerPlusApp
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            try
+            {
+                Application.Run(new Main());
 
-            Application.Run(new Main());
+            }
+            catch (Exception e)
+            {
+                Program.Application_ApplicationExit(e);
+            }
         }
 
-        private static void Application_ApplicationExit(object sender, EventArgs e)
+        private static void Application_ApplicationExit(Exception e)
         {
-            MessageBox.Show(e.ToString());
+            string filePath = Environment.CurrentDirectory + "/Error.txt";
+
+            using (StreamWriter writer = new StreamWriter(filePath, true))
+            {
+                writer.WriteLine("-----------------------------------------------------------------------------");
+
+                while (e != null)
+                {
+                    writer.WriteLine(e.GetType().FullName);
+                    writer.WriteLine("Message : " + e.Message);
+                    writer.WriteLine("StackTrace : " + e.StackTrace);
+
+                    e = e.InnerException;
+                }
+            }
         }
 
         public static Assembly Resolver(object sender, ResolveEventArgs args)

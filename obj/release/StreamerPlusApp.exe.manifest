@@ -91,14 +91,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="StreamerPlusApp.exe" size="4145664">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="StreamerPlusApp.exe" size="4148224">
       <assemblyIdentity name="StreamerPlusApp" version="0.0.0.0" publicKeyToken="5FFB48E18A686447" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>Akr1ErYrYVlqfzh4YF+ZqWrMwPGpBIRFuW7DjvVRRwM=</dsig:DigestValue>
+        <dsig:DigestValue>6mSZCOi1Tqx1GpL+AdVTM3pnRrvljSIjnsualjoOgUU=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -110,7 +110,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>9gemzsPQgR1oVHkcBT5+NRrcA7z7LHN9ADHbqXtE1kY=</dsig:DigestValue>
+        <dsig:DigestValue>oDVepCLzYD4pXJu/NfHqibm25DXP++Zo0srpXKbyPjg=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -141,13 +141,13 @@
       <dsig:DigestValue>xVVtyPbUf3EI+XMpzzXnV16HvzHgA3WylvTaNmfV5G8=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="StreamerPlusApp.exe.config" size="2680">
+  <file name="StreamerPlusApp.exe.config" size="2682">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>+pdhY7xWN1R9+27jMPQU9BADBJnxV65O9NRgAhlk+xk=</dsig:DigestValue>
+      <dsig:DigestValue>8DCnXA/gRAYgDMlxn+WxWKJte4lvHEmoRsRv1xjE6u0=</dsig:DigestValue>
     </hash>
   </file>
   <file name="SubCount\body.html" size="154">

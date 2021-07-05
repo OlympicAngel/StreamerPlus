@@ -43,50 +43,62 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CefSharp.dll" size="218112">
-      <assemblyIdentity name="CefSharp" version="75.1.143.0" publicKeyToken="40C4B6FC221F4138" language="neutral" processorArchitecture="x86" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CefSharp.dll" size="1047040">
+      <assemblyIdentity name="CefSharp" version="88.2.90.0" publicKeyToken="40C4B6FC221F4138" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>+RZXS81vvI2ZnnailSBmMiwRmNAwZJeTZFdoAapJTOE=</dsig:DigestValue>
+        <dsig:DigestValue>wQX8TkPvEzJbttD1+stPBqUt5KxH4BzjF0cfdDp+f0A=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CefSharp.Core.dll" size="1376256">
-      <assemblyIdentity name="CefSharp.Core" version="75.1.143.0" publicKeyToken="40C4B6FC221F4138" language="neutral" processorArchitecture="x86" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CefSharp.Core.dll" size="30208">
+      <assemblyIdentity name="CefSharp.Core" version="88.2.90.0" publicKeyToken="40C4B6FC221F4138" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>mCTv3mqnniXH1AJoXAmyrt5aYVhKDn7lU2+UOMbxvjI=</dsig:DigestValue>
+        <dsig:DigestValue>ZEouMznq22PkaQNkADBtY9ErsUV2c0lUcOEemUyOWMA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CefSharp.WinForms.dll" size="28160">
-      <assemblyIdentity name="CefSharp.WinForms" version="75.1.143.0" publicKeyToken="40C4B6FC221F4138" language="neutral" processorArchitecture="x86" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CefSharp.OffScreen.dll" size="31232">
+      <assemblyIdentity name="CefSharp.OffScreen" version="88.2.90.0" publicKeyToken="40C4B6FC221F4138" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>W5PNOUs8/bBt2Z2bhv327La2J8O7JQkSAdXm9RL7/hE=</dsig:DigestValue>
+        <dsig:DigestValue>CMqpKtHxW1izFxrUqvseiK+wKonJPCr4gCoSvVeOfME=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="StreamerPlusApp.exe" size="3931648">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CefSharp.WinForms.dll" size="33280">
+      <assemblyIdentity name="CefSharp.WinForms" version="88.2.90.0" publicKeyToken="40C4B6FC221F4138" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>NLq2F8RM9UFcE9gAl4MzwIel6DISqnhlOv4jGYHM9xE=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="StreamerPlusApp.exe" size="3937792">
       <assemblyIdentity name="StreamerPlusApp" version="0.0.0.0" publicKeyToken="5FFB48E18A686447" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>uzUY1KYnOVr6xVgN0ILK2/+33+PUs1D19yNAAQ6kpV4=</dsig:DigestValue>
+        <dsig:DigestValue>Fu/TWPLeTZFWcGHmDvvYjhabbk4XHScAVskRkW7A/Wc=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -98,7 +110,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>iGbAPy4af2/QFlAAF5PZM5o2zBnBXp/EEKJ9klEtzYw=</dsig:DigestValue>
+        <dsig:DigestValue>R+CNZPI2ZTdS4WeXD208F/x5dY3mzAbqDYLMQ5KSTvw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -120,15 +132,6 @@
       <dsig:DigestValue>xVVtyPbUf3EI+XMpzzXnV16HvzHgA3WylvTaNmfV5G8=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="STREAMER PLUS.ico" size="45451">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>VT5YQgA5CY9Sq+vPjRUHcEk7FZvl5nTFwUNmqQacgy8=</dsig:DigestValue>
-    </hash>
-  </file>
   <file name="streamer+.ico" size="151516">
     <hash>
       <dsig:Transforms>
@@ -144,25 +147,25 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>pDsIGMk7dpHqj0I1Zf9TS3t/pQbS59vWx9O8Vgd/0T4=</dsig:DigestValue>
+      <dsig:DigestValue>+pdhY7xWN1R9+27jMPQU9BADBJnxV65O9NRgAhlk+xk=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="SubCount\body.html" size="238">
+  <file name="SubCount\body.html" size="154">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>0goZhjpyxdqdsZHXDZY/mpHxui2J88sFf30+J49LRsw=</dsig:DigestValue>
+      <dsig:DigestValue>438peo0iUddt3RCTaocnuM3uhdDx1DjfLy3Hq8Cjqxs=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="SubCount\script.js" size="22319">
+  <file name="SubCount\script.js" size="19621">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>o6pT/SyaSFZOiZLFze40lDvX8DRuALIzfzpFk04yJRY=</dsig:DigestValue>
+      <dsig:DigestValue>YKZWVxOR23KFBtIG8KQIB/nexTQd9bPaj7zDB0Th79k=</dsig:DigestValue>
     </hash>
   </file>
   <file name="SubCount\style.css" size="25819">

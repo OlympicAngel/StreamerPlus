@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace StreamerPlusApp
@@ -62,14 +63,14 @@ function TimeOutCall()
             offscreen_setting.WebSecurity = CefState.Disabled;
 
             this.browser = new CefSharp.OffScreen.ChromiumWebBrowser("https://studio.youtube.com/", offscreen_setting);
-            //this.browser.Size = new Size(1, 1);
+            this.browser.Size = new Size(1, 1);
             //will get refreshed and change the url to contain the subcount
             this.browser.AddressChanged += new EventHandler<AddressChangedEventArgs>((object sender, AddressChangedEventArgs e) =>
             {
                 if (e.Address.Contains("?"))
                 {
                     string newSubcount = e.Address.Split('?')[1];
-                    if(newSubcount != localServer.lastKnow_subcount.ToString())
+                    if (newSubcount != localServer.lastKnow_subcount.ToString() && this.localServer != null)
                         this.localServer.BroadcastSubcount2Webscokets(newSubcount);
                 }
             });
@@ -92,7 +93,7 @@ function TimeOutCall()
     public class Server
     {
         private HttpListener _httpListener = new HttpListener();
-        private Thread _responseThread;
+        private Task _responseThread;
         private bool isClosed = false;
         private List<WebSocketLite> userReciver;
 
@@ -104,12 +105,23 @@ function TimeOutCall()
             userReciver = new List<WebSocketLite>();
         }
 
-        public void Start()
+        public async void Start()
         {
             _httpListener.Start(); // start server (Run application as Administrator!)
-
-            _responseThread = new Thread(ResponseThread);
-            _responseThread.Start(); // start the response thread
+            while (!this.isClosed) //if the server is open
+            {
+                HttpListenerContext client_request = await _httpListener.GetContextAsync();
+                try
+                {
+                    await this.ResponseThread(client_request);
+                }
+                catch (Exception e)
+                {
+                    if (this.isClosed)
+                        return;
+                    MessageBox.Show(e.Message, "שגיאה");
+                }
+            }
         }
         public async void Close()
         {
@@ -127,27 +139,14 @@ function TimeOutCall()
             catch (Exception e) { }
         }
 
-        private void ResponseThread()
+        private async Task ResponseThread(HttpListenerContext client_request)
         {
-            while (this.isClosed == false)
-            {
-                try
-                {
-                    HttpListenerContext client_request = _httpListener.GetContext(); // get a context
-                                                                                     // Now, you'll find the request URL in context.Request.Url
-                    if (client_request.Request.IsWebSocketRequest)
-                        this.HandleWebSocketReq(client_request);
-                    else
-                        this.HandleHttpReq(client_request);
-                }
-                catch (Exception e)
-                {
-                    if (this.isClosed)
-                        return;
-                }
-            }
+            if (client_request.Request.IsWebSocketRequest)
+                await this.HandleWebSocketReq(client_request);
+            else
+                await this.HandleHttpReq(client_request);
         }
-        private void HandleHttpReq(HttpListenerContext client_request)
+        private async Task HandleHttpReq(HttpListenerContext client_request)
         {
             //if (browser != null && browser.IsBrowserInitialized)
             //    browser.Reload();
@@ -161,7 +160,7 @@ function TimeOutCall()
             client_request.Response.KeepAlive = false; // set the KeepAlive bool to false
             client_request.Response.Close(); // close the connection
         }
-        private async void HandleWebSocketReq(HttpListenerContext client_request)
+        private async Task HandleWebSocketReq(HttpListenerContext client_request)
         {
             WebSocketContext webSocketContext = null;
 
@@ -185,11 +184,9 @@ function TimeOutCall()
 
             ws.Send(SubcountJSON_msg());
 
-            userReciver.RemoveAll(item => item == null);
-            if (!userReciver.Contains(ws))
-            {
-                userReciver.Add(ws);
-            }
+            userReciver.RemoveAll(item => item == null || item.isDisposed);
+
+            userReciver.Add(ws);
 
         }
 
@@ -238,6 +235,7 @@ function TimeOutCall()
     public class WebSocketLite
     {
         WebSocket webSocket;
+        public bool isDisposed = false;
         public string Protocol
         {
             get
@@ -292,7 +290,7 @@ function TimeOutCall()
 
         public async void Send(string data)
         {
-            if (webSocket == null)
+            if (webSocket == null || this.isDisposed)
                 return;
             byte[] responseBuffer = Encoding.ASCII.GetBytes(data);
             await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), WebSocketMessageType.Text, true, CancellationToken.None);
@@ -300,6 +298,7 @@ function TimeOutCall()
 
         public async void Dispose()
         {
+            this.isDisposed = true;
             await this.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "server is closed", CancellationToken.None);
             this.webSocket.Abort();
             this.webSocket.Dispose();
