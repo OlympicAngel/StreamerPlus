@@ -112,7 +112,7 @@ namespace StreamerPlusApp
                 return;
             }
             //if the page is livestream studio BEFORE the live actully loads in
-            if (address.Contains("livestreaming"))
+            if (address.Contains("livestreaming") && !address.Contains(Urls.youtube["minLoginURL"]))
             {
                 OnRawLiveStreamPage();
                 return;
@@ -141,7 +141,7 @@ namespace StreamerPlusApp
             {
                 Properties.Settings.Default.heightRatio = mainForm_ref.tempRatio;
                 Properties.Settings.Default.Save();
-                //Safe.Invoke(() => mainForm_ref.DynamicLayOut());
+                Safe.Invoke(() => mainForm_ref.DynamicLayOut());
             }
             //if current page is some youtube page AND it was load after a RE-login action
             if (browserRef.Address == Urls.youtube["youtubeUrl"] && mainForm_ref.yt_relogin)
