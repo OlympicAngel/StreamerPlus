@@ -11,6 +11,8 @@ namespace StreamerPlusApp
     {
         public static Dictionary<string,string> youtube = new Dictionary<string,string>() {
             { "login", "https://accounts.google.com/ServiceLogin?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Flive_dashboard%3Fnv%3D0&hl=he" },
+            { "select_account", "https://www.youtube.com/channel_switcher" },
+            { "select_account_path", "https://www.youtube.com/account" },
             { "logout","https://www.youtube.com/logout" },
             { "dashboard", "https://www.youtube.com/live_dashboard?nv=0" },
             { "chat","https://www.youtube.com/live_chat?v=" },
@@ -30,5 +32,6 @@ namespace StreamerPlusApp
             { "settings","https://www.olympicangelabz.com/pages/stream-settings/full.php" },
             { "event_end","https://www.undefinedurlforevent.com/"}
         };
+
     }
 }

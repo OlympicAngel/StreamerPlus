@@ -137,6 +137,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="browserUtil\UA_RequestHandler.cs" />
     <Compile Include="css_js.cs" />
     <Compile Include="browserUtil\BrowserFlow.cs" />
     <Compile Include="browserUtil\Urls.cs" />

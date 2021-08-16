@@ -23,39 +23,79 @@ namespace StreamerPlusApp
         {
             //chat / loginError
             #region chat
-            css["chat"] = @"@import url(""https://fonts.googleapis.com/css?family=Heebo&display=swap"");
-body{filter:invert(94%)}
-img,#text,#icon,yt-icon,.moderator,yt-icon,#focused , .owner{filter:invert(100%)}
-span, b, label,p,pre,#message,#text,#yt-dropdown-menu,.style-scope{
-font-weight: bolder;
-font-family: heebo;
-letter-spacing:0.03em;
-word-spacing:0.1em;
+            css["chat"] = @"@import url(""https: //fonts.googleapis.com/css?family=Heebo&display=swap"");
+html:not([dark]) body {
+	filter: invert(94%)
 }
-body:after { display:block;
-content:""סטרימר פלוס"";
-z-index: 999;
-position: absolute; top:0;
-color:#000;
-font-size:min(4vw,30px);
-font-family: heebo;
-margin: 0; right:37vw;
-text-shadow: 2px 2px 0px aqua;
-background: gray; border-radius:0px 0px 10px 10px;
-box-shadow:inset 0px -15px 30px -15px #fff; width:22.5vw;
-padding: 0 2vw;
-text-align:center;
+
+html:not([dark]) *:is(img,
+#text,
+#icon,
+yt-icon,
+.moderator,
+yt-icon,
+#focused,
+.owner){
+	filter: invert(100%)
 }
-#menu,#picker-buttons,#panel-contents,#visible-banners
+
+span,
+b,
+label,
+p,
+pre,
+#message,
+#text,
+#yt-dropdown-menu,
+.style-scope {
+	font-weight: bolder;
+	font-family: heebo;
+	letter-spacing: 0.03em;
+	word-spacing: 0.1em;
+}
+
+body:after {
+	display: block;
+	content: ""סטרימר פלוס"";
+	z-index: 999;
+	position: absolute;
+	top: 0;
+	color: #000;
+	font-size: min(4vw, 30px);
+	font-family: heebo;
+	margin: 0;
+	right: 37vw;
+	text-shadow: 2px 2px 0px aqua;
+	background: gray;
+	border-radius: 0px 0px 10px 10px;
+	box-shadow: inset 0px -15px 30px -15px #fff;
+	width: 22.5vw;
+	padding: 0 2vw;
+	text-align: center;
+}
+
+html[dark] body:after
 {
-filter: invert(1) !important;
+	box-shadow: inset 0px -15px 30px -15px #fff;
+    color:#fff;
+	text-shadow: 2px 2px 0px red;
+
 }
+
+html:not([dark]) *:is(#menu,
+#picker-buttons,
+#panel-contents,
+#visible-banners) {
+	filter: invert(1) !important;
+}
+
 div#visible-banners * {
-    filter: brightness(1);
+	filter: invert(1);
+    color: #fff;
 }
-.yt-live-interactivity-component-background
-{
-    filter: hue-rotate(132deg) brightness(1.1) contrast(1.9) !important;
+
+html:not([dark]) .yt-live-interactivity-component-background {
+	filter: hue-rotate(132deg) brightness(1.1) contrast(1.9) !important;
 }
 ";
             #endregion
@@ -65,6 +105,57 @@ div#visible-banners * {
                         div div:not(#content) {display: none;}
                         div#content h1::after {content: ""נסה להתחבר מחדש בהגדרות או לפתוח את התוכנה מחדש."";display: block;direction: rtl;font - size: 4vmin;font - weight: 100;opacity: 0.6;}";            ;
             #endregion
+
+            css["switch_user"] = @"
+#masthead-container, ytd-masthead,
+#contents.ytd-channel-switcher-page-renderer ytd-button-renderer.ytd-channel-switcher-page-renderer,
+ytd-settings-sidebar-renderer{
+    display:none !important;
+}
+ytd-page-manager,
+ytd-browse,
+ytd-section-list-renderer,
+ytd-channel-switcher-header-renderer
+{
+    margin: 0 !important;
+}
+ytd-browse,
+{
+    width:100% !important;
+    max-width: 100% !important;
+}
+ytd-channel-switcher-header-renderer
+{
+    width: 100%;
+    display: block;
+    font-size: 0 !important;
+    color: transparent;
+    position: relative;
+    padding-bottom: 4vmin !important;
+}
+ytd-channel-switcher-header-renderer::before
+{
+    content: ""בחר איזה באיזה ערוץ אתה עושה לייב:"";
+    display: block;
+    width: 100%;
+    position: relative;
+    margin: auto;
+    font-size: 6vmin;
+    font-weight: 700;
+    color: black;
+}
+
+ytd-channel-switcher-header-renderer::after {
+    content: ""אם אתה מוחזר לדף הזה, אז התוכנה זיהתה שלייבים לא זמינים עבור הערוץ שבחרת.."";
+    width: 100%;
+    position: absolute;
+    margin: auto;
+    font-size: 4vmin;
+    font-weight: 100;
+    color: red;
+    line-height: 3.5vmin;
+    bottom: 0;
+}";
         }
 
         private static void LoadJS()
@@ -94,6 +185,28 @@ div#visible-banners * {
             #endregion
 
             js["clickTest"] = "";
+
+            js["invalidUser"] = @"
+            function testFunc()
+            {
+                var btn = document.querySelector('#features li tp-yt-paper-icon-item[aria-disabled=true]');
+                var loader = document.querySelector('tp-yt-paper-progress#app-loading[hidden]');
+                console.log(btn.getAttribute('tabindex'))
+                console.log(loader)
+
+                if(btn && loader)
+                {
+                    if(btn.getAttribute('tabindex') == '-1')
+                    {
+                             location = '{url}';
+                             clearInterval(window.testInterval);
+                    }
+                }
+            }
+            if(window.testInterval == undefined)
+            window.testInterval = setInterval(testFunc,75);
+
+";
         }
     }
 }

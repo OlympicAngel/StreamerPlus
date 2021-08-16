@@ -91,14 +91,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="StreamerPlusApp.exe" size="4148224">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="StreamerPlusApp.exe" size="4154880">
       <assemblyIdentity name="StreamerPlusApp" version="0.0.0.0" publicKeyToken="5FFB48E18A686447" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>ATztPO+ct0us0hzZtNPeufPAVegLe57SuxemZoG5O48=</dsig:DigestValue>
+        <dsig:DigestValue>e9LSHTIWwCjJQqsc/MdSODP3veUf8tZAaxb2eFs89Og=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -110,7 +110,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>aDQEPIyOvzlXuvMsXs0TPPOaU6arIp7FhUS0sj8ccY0=</dsig:DigestValue>
+        <dsig:DigestValue>BUiU2qu8m1wRSBBUsso7TMrw8tV+F84I0wlORraC7DU=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
