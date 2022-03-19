@@ -9,8 +9,11 @@ namespace StreamerPlusApp
 {
     public static class Urls
     {
-        public static Dictionary<string,string> youtube = new Dictionary<string,string>() {
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+        public static Dictionary<string, string> youtube = new Dictionary<string, string>() {
             { "login", "https://accounts.google.com/ServiceLogin?service=youtube&uilel=3&passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Flive_dashboard%3Fnv%3D0&hl=he" },
+            { "loginBase_google", "https://accounts.google.com" },
+            { "loginBase_youtube", "https://accounts.youtube.com/accounts/CheckConnection" },
             { "select_account", "https://www.youtube.com/channel_switcher" },
             { "select_account_path", "https://www.youtube.com/account" },
             { "logout","https://www.youtube.com/logout" },
@@ -18,7 +21,6 @@ namespace StreamerPlusApp
             { "chat","https://www.youtube.com/live_chat?v=" },
             { "olympic" , "https://www.youtube.com/OlympicAngel" },
             { "livestream_placeholder", "https://studio.youtube.com/video/{id}/livestreaming"},
-
             { "minLoginURL","://accounts.google.com"},
             { "youtubeUrl","https://www.youtube.com/"}
         };

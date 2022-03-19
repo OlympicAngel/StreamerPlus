@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using CefSharp;
 
 namespace StreamerPlusApp.browserUtil
@@ -20,8 +21,20 @@ namespace StreamerPlusApp.browserUtil
     {
         protected override CefReturnValue OnBeforeResourceLoad(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IRequest request, IRequestCallback callback)
         {
+            if (request == null || chromiumWebBrowser == null)
+                return CefReturnValue.Continue;
+
             var headers = request.Headers;
-            headers["User-Agent"] = BrowserFlow.UA;
+            if (chromiumWebBrowser.Address != null &&
+                (chromiumWebBrowser.Address.Contains(Urls.youtube["loginBase_google"]) ||
+                chromiumWebBrowser.Address.Contains(Urls.youtube["loginBase_youtube"])))
+            {
+                headers["User-Agent"] = " ";
+            }
+            else
+                headers["User-Agent"] = BrowserFlow.UA;
+
+
             request.Headers = headers;
             return CefReturnValue.Continue;
         }

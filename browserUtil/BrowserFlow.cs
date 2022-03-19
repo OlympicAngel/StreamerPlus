@@ -7,12 +7,14 @@ using System.Threading;
 using System.IO;
 using System.Drawing;
 using StreamerPlusApp.browserUtil;
+using System.Globalization;
 
 namespace StreamerPlusApp
 {
     public static class BrowserFlow
     {
-        public static string UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0";
+        //public static string UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0";
+        public static string UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36";
         static Dictionary<string, ChromiumWebBrowser> cef = new Dictionary<string, ChromiumWebBrowser>(){
             { "youtube", null },
             { "streamlabs", null }
@@ -23,16 +25,15 @@ namespace StreamerPlusApp
         };
         static Thread wait_15sec;
         static UA_RequestHandler rh = new UA_RequestHandler();
-        static bool switching_user = false;
+        static bool switching_user;
 
 
-        public static Main mainForm_ref;
+        public static Main mainFormRef { get; set; }
 
         public static void INI(Main mainRef, ChromiumWebBrowser youtube, ChromiumWebBrowser streamlabs)
         {
-            //this.UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36 Edg/81.0.416.72"
             css_js.INI();
-            mainForm_ref = mainRef;
+            mainFormRef = mainRef;
             cef["youtube"] = youtube;
             cef["streamlabs"] = streamlabs;
             cef["youtube"].FrameLoadEnd += new System.EventHandler<CefSharp.FrameLoadEndEventArgs>(FrameLoadEnd);
@@ -42,6 +43,8 @@ namespace StreamerPlusApp
 
             cef["streamlabs"].RequestHandler = rh;
             cef["youtube"].RequestHandler = rh;
+            cef["youtube"].LifeSpanHandler = new CustomLifeSpanHandler();
+            cef["streamlabs"].LifeSpanHandler = new CustomLifeSpanHandler();
 
             wait_15sec = new Thread(TimeoutThread);
             wait_15sec.Name = "Login Timout";
@@ -51,8 +54,8 @@ namespace StreamerPlusApp
 
             Safe.Invoke(() =>
             {
-                mainForm_ref.ToggleLoading(2);
-                mainForm_ref.loadingText.Text = "יוצר חיבור לגוגל..";
+                mainFormRef.ToggleLoading(2);
+                mainFormRef.loadingText.Text = "יוצר חיבור לגוגל..";
             });
             cef["streamlabs"].Load(Urls.youtube["dashboard"]);
         }
@@ -66,7 +69,7 @@ namespace StreamerPlusApp
             if (!Directory.Exists(path + "userData/"))
                 Directory.CreateDirectory(path + "userData/");
 
-            var settings = new CefSettings
+            using (CefSettings settings = new CefSettings
             {
                 LogSeverity = LogSeverity.Disable,
                 WindowlessRenderingEnabled = true,
@@ -75,28 +78,30 @@ namespace StreamerPlusApp
                 CachePath = path,
                 UserDataPath = path + "userData/",
                 Locale = "he",
-                ProductVersion = "1.0.0",
                 RemoteDebuggingPort = 6968,
                 PersistSessionCookies = true,
-                UserAgent = BrowserFlow.UA
-            };
-            settings.CefCommandLineArgs.Add("--js-flags", "--max_old_space_size=500");
-            settings.CefCommandLineArgs.Add("--multi-threaded-message-loop", "1");
-            settings.CefCommandLineArgs.Remove("process-per-tab");
-            settings.CefCommandLineArgs.Add("enable-media-stream", "0");
-            settings.CefCommandLineArgs.Add("disable-gpu-vsync", "1");
-            settings.CefCommandLineArgs.Add("mute-audio", "true");
-            settings.CefCommandLineArgs.Add("disable-3d-apis", "1");
-            settings.CefCommandLineArgs.Add("renderer-process-limit", "10");
-            settings.SetOffScreenRenderingBestPerformanceArgs();
-            CefSharpSettings.SubprocessExitIfParentProcessClosed = true;
-            CefSharpSettings.ShutdownOnExit = true;
-            Rectangle resolution = Screen.PrimaryScreen.Bounds;
-            if (resolution.Width >= 1440 || resolution.Height >= 1440)
+                UserAgent = BrowserFlow.UA,
+                
+            })
             {
-                Cef.EnableHighDPISupport();
+                settings.CefCommandLineArgs.Add("--js-flags", "--max_old_space_size=500");
+                settings.CefCommandLineArgs.Add("--multi-threaded-message-loop", "1");
+                settings.CefCommandLineArgs.Remove("process-per-tab");
+                settings.CefCommandLineArgs.Add("enable-media-stream", "0");
+                settings.CefCommandLineArgs.Add("disable-gpu-vsync", "1");
+                settings.CefCommandLineArgs.Add("mute-audio", "true");
+                settings.CefCommandLineArgs.Add("disable-3d-apis", "1");
+                settings.CefCommandLineArgs.Add("renderer-process-limit", "10");
+                settings.SetOffScreenRenderingBestPerformanceArgs();
+                CefSharpSettings.SubprocessExitIfParentProcessClosed = true;
+                CefSharpSettings.ShutdownOnExit = true;
+                Rectangle resolution = Screen.PrimaryScreen.Bounds;
+                if (resolution.Width >= 1440 || resolution.Height >= 1440)
+                {
+                    Cef.EnableHighDPISupport();
+                }
+                Cef.Initialize(settings, performDependencyCheck: false, browserProcessHandler: null);
             }
-            Cef.Initialize(settings, performDependencyCheck: false, browserProcessHandler: null);
             #endregion
         }
 
@@ -108,7 +113,7 @@ namespace StreamerPlusApp
             Safe.Invoke(() =>
             {
                 t.AutoPopDelay = 60;
-                t.SetToolTip(mainForm_ref.loadingText, address);
+                t.SetToolTip(mainFormRef.loadingText, address);
                 t.Active = true;
                 t.AutomaticDelay = 0;
                 t.InitialDelay = 0;
@@ -117,7 +122,7 @@ namespace StreamerPlusApp
 
             if (address.Contains("/livestreaming") && address.Contains("/video/"))
             {
-                Safe.Invoke(() => { mainForm_ref.loadingText.Text = "מזהה לייב פעיל..."; });
+                Safe.Invoke(() => { mainFormRef.loadingText.Text = "מזהה לייב פעיל..."; });
                 OnLiveStreamPage(browserRef);
                 return;
             }
@@ -132,9 +137,9 @@ namespace StreamerPlusApp
             {
                 Safe.Invoke(() =>
                 {
-                    mainForm_ref.ToggleLoading(2);
-                    mainForm_ref.DynamicLayOut();
-                    mainForm_ref.loadingText.Text = "מחליף משתמש..";
+                    mainFormRef.ToggleLoading(2);
+                    mainFormRef.DynamicLayOut();
+                    mainFormRef.loadingText.Text = "מחליף משתמש..";
 
                 });
                 switching_user = false;
@@ -144,15 +149,14 @@ namespace StreamerPlusApp
 
         static void FrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
-
             ChromiumWebBrowser browserRef = ((ChromiumWebBrowser)sender);
-            string browser_name = (browserRef.Equals(cef["youtube"])) ? "youtube" : "streamlabs";
-            Handle_delayed_JS(browser_name, e.Frame);
+            string browserName = (browserRef.Equals(cef["youtube"])) ? "youtube" : "streamlabs";
+            HandleDelayedJS(browserName, e.Frame);
             browserRef.SetZoomLevel(Properties.Settings.Default.scale);//set the zoom level from settings
 
-            if (!e.Frame.IsMain)
+            if (!e.Frame.IsMain || !e.Frame.IsValid)
                 return;
-            
+
             //if current page is google account login
             if (browserRef.Address.Contains(Urls.youtube["minLoginURL"]))
             {
@@ -160,21 +164,21 @@ namespace StreamerPlusApp
                 return;
             }
             //if current page is account switcher
-            if(browserRef.Address.Contains(Urls.youtube["select_account"]) || browserRef.Address.Contains(Urls.youtube["select_account_path"]))
+            if (browserRef.Address.Contains(Urls.youtube["select_account"]) || browserRef.Address.Contains(Urls.youtube["select_account_path"]))
             {
                 OnAccountSwitchPage();
                 return;
             }
             //if aspect ration doesnt match settings aspect
-            if (mainForm_ref.tempRatio != double.Parse(Properties.Settings.Default["heightRatio"].ToString()))
+            if (mainFormRef.tempRatio != double.Parse(Properties.Settings.Default["heightRatio"].ToString(), new CultureInfo("en-US")))
             {
-                Properties.Settings.Default.heightRatio = mainForm_ref.tempRatio;
+                Properties.Settings.Default.heightRatio = mainFormRef.tempRatio;
                 Properties.Settings.Default.Save();
-                Safe.Invoke(() => mainForm_ref.DynamicLayOut());
+                Safe.Invoke(() => mainFormRef.DynamicLayOut());
             }
 
             //if current page is some youtube page AND it was load after a RE-login action
-            if (browserRef.Address == Urls.youtube["youtubeUrl"] && mainForm_ref.yt_relogin)
+            if (browserRef.Address == Urls.youtube["youtubeUrl"] && mainFormRef.yt_relogin)
             {
                 OnYoutubeReLoginPage(browserRef);
                 return;
@@ -192,40 +196,40 @@ namespace StreamerPlusApp
             }
             if (browserRef.Address.Contains(Urls.youtube["chat"]) && browserRef.Address.Contains("LoginError"))
             {
-                Safe.Invoke(() => { mainForm_ref.ToggleLoading(1); });
-                Inject_CSS("loginError", browserRef);
+                Safe.Invoke(() => { mainFormRef.ToggleLoading(1); });
+                InjectCSS("loginError", browserRef);
                 return;
             }
         }
 
 
         #region js/css injection
-        public static void Inject_JS(string script, ChromiumWebBrowser browser, bool onlyNow = false)
+        public static void InjectJS(string script, ChromiumWebBrowser browser, bool onlyNow = false)
         {
-            if (!script.Contains(" ") && css_js.js.ContainsKey(script))
+            if (script != null && !script.Contains(" ") && css_js.js.ContainsKey(script))
                 script = css_js.js[script];
 
-            if (browser.CanExecuteJavascriptInMainFrame)
+            if (browser != null && browser.CanExecuteJavascriptInMainFrame)
             {
                 browser.ExecuteScriptAsyncWhenPageLoaded(script);
             }
-            else if(onlyNow == false)
+            else if (onlyNow == false)
             {
-                string browser_name = (browser.Equals(cef["youtube"])) ? "youtube" : "streamlabs";
-                js[browser_name] = script;
+                string browserName = (browser != null && browser.Equals(cef["youtube"])) ? "youtube" : "streamlabs";
+                js[browserName] = script;
             }
         }
-        public static void Handle_delayed_JS(string browser_name,IFrame frame)
+        public static void HandleDelayedJS(string browserName, IFrame frame)
         {
-            string browsers_script = js[browser_name];
+            string browsers_script = js[browserName];
             if (!string.IsNullOrEmpty(browsers_script))
-                if (frame.IsMain)
+                if (frame !=null && frame.IsMain)
                 {
                     frame.ExecuteJavaScriptAsync(browsers_script);
-                    js[browser_name] = "";
+                    js[browserName] = "";
                 }
         }
-        public static void Inject_CSS(string css, ChromiumWebBrowser browser)
+        public static void InjectCSS(string css, ChromiumWebBrowser browser)
         {
             if (css == null || browser == null)
                 return;
@@ -235,39 +239,39 @@ namespace StreamerPlusApp
             string css_as_script = @"var wrap = document.createElement('style');
             wrap.innerHTML = '" + css.Replace(Environment.NewLine, "") + @"';
             document.getElementsByTagName('head')[0].appendChild(wrap)";
-            Inject_JS(css_as_script, browser);
+            InjectJS(css_as_script, browser);
         }
         #endregion
 
         #region per page events
         static void OnGoogleLoginPage()
         {
-            if(wait_15sec.IsAlive)
+            if (wait_15sec.IsAlive)
             {
                 wait_15sec.Abort();
             }
-            mainForm_ref.tempRatio = double.Parse(Properties.Settings.Default["heightRatio"].ToString());
-            if (mainForm_ref.tempRatio == 0)
-                mainForm_ref.tempRatio = 0.7;
+            mainFormRef.tempRatio = double.Parse(Properties.Settings.Default["heightRatio"].ToString(), new CultureInfo("en-US"));
+            if (mainFormRef.tempRatio == 0)
+                mainFormRef.tempRatio = 0.7;
             Properties.Settings.Default.heightRatio = 0;
             Properties.Settings.Default.Save();
-            if(!mainForm_ref.yt_relogin)
+            if (!mainFormRef.yt_relogin)
             {
                 Safe.Invoke(() =>
                 {
-                    mainForm_ref.ToggleLoading(1);
-                    mainForm_ref.DynamicLayOut();
+                    mainFormRef.ToggleLoading(1);
+                    mainFormRef.DynamicLayOut();
                 });
             }
         }
         static void OnYoutubeReLoginPage(ChromiumWebBrowser browser)
         {
-            Inject_JS("reLoginWait", browser);
-            mainForm_ref.yt_relogin = false; //reset the re login blocking state
+            InjectJS("reLoginWait", browser);
+            mainFormRef.yt_relogin = false; //reset the re login blocking state
         }
         static void OnRawLiveStreamPage()
         {
-            if(!wait_15sec.IsAlive)
+            if (!wait_15sec.IsAlive)
             {
                 wait_15sec = new Thread(TimeoutThread);
                 wait_15sec.Name = "Login Timout";
@@ -277,12 +281,12 @@ namespace StreamerPlusApp
 
             Safe.Invoke(() =>
             {
-                mainForm_ref.ToggleLoading(2);
-                mainForm_ref.loadingText.Text = "טוען דשבורד...";
+                mainFormRef.ToggleLoading(2);
+                mainFormRef.loadingText.Text = "טוען דשבורד...";
             });
 
 
-            Inject_JS(css_js.js["invalidUser"].Replace("{url}",Urls.youtube["select_account"]),cef["streamlabs"]);
+            InjectJS(css_js.js["invalidUser"].Replace("{url}", Urls.youtube["select_account"]), cef["streamlabs"]);
         }
         static void OnAccountSwitchPage()
         {
@@ -292,16 +296,16 @@ namespace StreamerPlusApp
             }
 
             switching_user = true;
-            Inject_CSS(css_js.css["switch_user"], cef["streamlabs"]);
-            mainForm_ref.tempRatio = double.Parse(Properties.Settings.Default["heightRatio"].ToString());
-            if (mainForm_ref.tempRatio == 0)
-                mainForm_ref.tempRatio = 0.7;
+            InjectCSS(css_js.css["switch_user"], cef["streamlabs"]);
+            mainFormRef.tempRatio = double.Parse(Properties.Settings.Default["heightRatio"].ToString(), new CultureInfo("en-US"));
+            if (mainFormRef.tempRatio == 0)
+                mainFormRef.tempRatio = 0.7;
             Properties.Settings.Default.heightRatio = 0;
             Properties.Settings.Default.Save();
             Safe.Invoke(() =>
             {
-                mainForm_ref.ToggleLoading(1);
-                mainForm_ref.DynamicLayOut();
+                mainFormRef.ToggleLoading(1);
+                mainFormRef.DynamicLayOut();
             });
         }
         static void OnLiveStreamPage(ChromiumWebBrowser browser)
@@ -311,7 +315,7 @@ namespace StreamerPlusApp
                 wait_15sec.Abort();
             }
 
-            mainForm_ref.subCount.ReloadUrl();
+            mainFormRef.SubCount.ReloadUrl();
             string address = browser.Address;
             string liveID = "";
             if (address.Contains("video/"))
@@ -325,15 +329,15 @@ namespace StreamerPlusApp
             {
                 MessageBox.Show("המערכת לא הצליחה לזהות באופן אוטומטי את מזהה הלייב!\nכרגע הצאט לא יפעל - רצוי מאוד להכנס להגדרות ולהזין ידנית את מזהה הלייב!", "זהוי נכשל");
                 liveID = "LoginError";
-                mainForm_ref.chatID = "";
+                mainFormRef.chatID = "";
             }
             else
-                mainForm_ref.chatID = liveID;
+                mainFormRef.chatID = liveID;
 
             Thread.Sleep(500);
             Safe.Invoke(() =>
             {
-                mainForm_ref.loadingText.Text = "טוען צאט...";
+                mainFormRef.loadingText.Text = "טוען צאט...";
                 cef["streamlabs"].Load(Urls.streamlabs["events"]);
                 cef["youtube"].Load(Urls.youtube["chat"] + liveID);
             });
@@ -342,8 +346,8 @@ namespace StreamerPlusApp
         }
         static void OnChatPage(ChromiumWebBrowser browser)
         {
-            Safe.Invoke(() => { mainForm_ref.ToggleLoading(1); });
-            Inject_CSS("chat", browser);
+            Safe.Invoke(() => { mainFormRef.ToggleLoading(1); });
+            InjectCSS("chat", browser);
         }
         #endregion
 
@@ -359,37 +363,45 @@ namespace StreamerPlusApp
 
     public static class FastBrowser
     {
-        public static void ActionAt(string url, string js)
+        public static void ActionAt(string urlz, string js)
         {
-            BrowserSettings offscreen_setting = new BrowserSettings();
-            offscreen_setting.DefaultEncoding = "UTF-8";
-            offscreen_setting.WindowlessFrameRate = 5;
-            CefSharp.OffScreen.ChromiumWebBrowser tempBrowser = new CefSharp.OffScreen.ChromiumWebBrowser(url, offscreen_setting);
-            tempBrowser.Size = new Size(10, 10);
-            tempBrowser.FrameLoadEnd += new EventHandler<FrameLoadEndEventArgs>((Object sender, FrameLoadEndEventArgs e) =>
+            using (BrowserSettings offscreen_setting = new BrowserSettings())
             {
-                if (e.Url == Urls.olympicangel["event_end"])
+                offscreen_setting.DefaultEncoding = "UTF-8";
+                offscreen_setting.WindowlessFrameRate = 5;
+                using (CefSharp.OffScreen.ChromiumWebBrowser tempBrowser = new CefSharp.OffScreen.ChromiumWebBrowser(urlz, offscreen_setting))
                 {
-                    Safe.Invoke(() => {
-                        tempBrowser.Dispose();
-                    });
-                    GC.Collect();
-                    return;
-                }
-
-                if (e.Frame.IsMain)
-                {
-                    if (!js.Contains(" ") && css_js.js.ContainsKey(js))
-                        js = css_js.js[js];
-
-                    if (tempBrowser.CanExecuteJavascriptInMainFrame)
+                    tempBrowser.RequestHandler = new UA_RequestHandler();
+                    tempBrowser.LifeSpanHandler = new CustomLifeSpanHandler();
+                    tempBrowser.Size = new Size(10, 10);
+                    tempBrowser.FrameLoadEnd += new EventHandler<FrameLoadEndEventArgs>((Object sender, FrameLoadEndEventArgs e) =>
                     {
-                        tempBrowser.ExecuteScriptAsyncWhenPageLoaded(js);
-                    }
-                }
-            });
-            //BrowserFlow.mainForm_ref.Controls.Add(tempBrowser);
+                        if (!e.Frame.IsValid)
+                            return;
 
+                        if (e.Url == Urls.olympicangel["event_end"])
+                        {
+                            Safe.Invoke(() =>
+                            {
+                                tempBrowser.Dispose();
+                            });
+                            GC.Collect();
+                            return;
+                        }
+
+                        if (e.Frame.IsMain)
+                        {
+                            if (!js.Contains(" ") && css_js.js.ContainsKey(js))
+                                js = css_js.js[js];
+
+                            if (tempBrowser.CanExecuteJavascriptInMainFrame)
+                            {
+                                tempBrowser.ExecuteScriptAsyncWhenPageLoaded(js);
+                            }
+                        }
+                    });
+                }
+            }
         }
     }
 }
