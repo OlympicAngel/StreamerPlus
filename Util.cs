@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -12,15 +13,15 @@ namespace StreamerPlusApp
 {
     static class Util
     {
-        public static double version = 1.3;
-        private static int blurMapRenderCount = 0;
+        public static double version = 1.4;
+        private static int blurMapRenderCount;
 
         public static uint ColorToUInt(Color color)
         {
             return (uint)((color.A << 24) | (color.R << 16) | (color.G << 8) | (color.B << 0));
         }
 
-        public static void Argreement(Form mainForm_ref)
+        public static void Argreement(Form mainFormRef)
         {
             if (Properties.Settings.Default.Agreement != version)
             {
@@ -37,22 +38,22 @@ namespace StreamerPlusApp
                 }
                 else
                 {
-                    mainForm_ref.Close();
+                    mainFormRef.Close();
                     Environment.Exit(0);
                 }
             }
         }
     
-        public static void CheckForUpdates(Form mainForm_ref)
+        public static void CheckForUpdates(Form mainFormRef)
         {
-            double serverVersion = double.Parse(cUrl("https://www.olympicangelabz.com/pages/StreamerPlus/version.txt"));
+            double serverVersion = double.Parse(cUrl("https://www.olympicangelabz.com/pages/StreamerPlus/version.txt"), new CultureInfo("en-US"));
             if (serverVersion > version)
             {
-                DialogResult result = MessageBox.Show("האם תרצה להתקין אותה עכשיו?", "קיימת גרסה חדשה - " + serverVersion.ToString(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.RightAlign);
+                DialogResult result = MessageBox.Show("האם תרצה להתקין אותה עכשיו?", "קיימת גרסה חדשה - " + serverVersion.ToString(new CultureInfo("en-US")), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1, MessageBoxOptions.RightAlign);
                 if (result == DialogResult.Yes)
                 {
                     System.Diagnostics.Process.Start("https://www.olympicangelabz.com/StreamerPlus");
-                    mainForm_ref.Close();
+                    mainFormRef.Close();
                     Environment.Exit(0);
                 }
             }
@@ -62,16 +63,23 @@ namespace StreamerPlusApp
         {
             if (urlPath == null)
                 return "";
-
-            WebClient wbC = new WebClient();
-            string data = wbC.DownloadString(urlPath);
-            wbC.Dispose();
-            return data;
+            TimoutWebClient wbC = new TimoutWebClient();
+            wbC.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
+            try
+            {
+                string data = wbC.DownloadString(urlPath);
+                wbC.Dispose();
+                return data;
+            }
+            catch (Exception)
+            {
+                return "1.0";
+            }
         }
 
-        public static Image PrintScreen(Form mainForm_ref)
+        public static Image PrintScreen(Form mainFormRef)
         {
-            Bitmap bmp = Screenshot.TakeSnapshot(mainForm_ref);
+            Bitmap bmp = Screenshot.TakeSnapshot(mainFormRef);
             BitmapFilter.GaussianBlur(bmp, 1);
 
             if (blurMapRenderCount >= 3)
@@ -87,7 +95,7 @@ namespace StreamerPlusApp
     {
         public static void Invoke(Action action)
         {
-            Control control = BrowserFlow.mainForm_ref;
+            Control control = BrowserFlow.mainFormRef;
             if (control == null || action == null)
                 return;
 
@@ -98,19 +106,16 @@ namespace StreamerPlusApp
         }
     }
 
+#pragma warning disable CA1051, CA1815
     public class ConvMatrix
     {
-        public int TopLeft = 0, TopMid = 0, TopRight = 0;
-        public int MidLeft = 0, Pixel = 1, MidRight = 0;
-        public int BottomLeft = 0, BottomMid = 0, BottomRight = 0;
-        public int Factor = 1;
-        public int Offset = 0;
+        public int TopLeft,TopMid , TopRight,MidLeft , Pixel = 1, MidRight, BottomLeft , BottomMid, BottomRight,Factor = 1, Offset ;
         public void SetAll(int nVal)
         {
             TopLeft = TopMid = TopRight = MidLeft = Pixel = MidRight = BottomLeft = BottomMid = BottomRight = nVal;
         }
     }
-    public class BitmapFilter
+    public static class BitmapFilter
     {
         private static bool Conv3x3(Bitmap b, ConvMatrix m)
         {
@@ -187,6 +192,8 @@ namespace StreamerPlusApp
 
         public static bool GaussianBlur(Bitmap b, int nWeight /* default to 4*/)
         {
+            if (b == null)
+                return false;
             ConvMatrix m = new ConvMatrix();
             m.SetAll(1);
             m.Pixel = nWeight;
@@ -213,6 +220,15 @@ namespace StreamerPlusApp
                 );
             }
             return bmp;
+        }
+    }
+    public class TimoutWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            WebRequest w = base.GetWebRequest(uri);
+            w.Timeout =  5 * 1000;
+            return w;
         }
     }
 }

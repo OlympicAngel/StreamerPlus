@@ -53,7 +53,7 @@ namespace StreamerPlusApp
 
         public static Assembly Resolver(object sender, ResolveEventArgs args)
         {
-            if (args.Name.StartsWith("CefSharp"))
+            if (args != null && args.Name.StartsWith("CefSharp",StringComparison.CurrentCulture))
             {
                 string assemblyName = args.Name.Split(new[] { ',' }, 2)[0] + ".dll";
                 string archSpecificPath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase,

@@ -4,6 +4,7 @@ using CefSharp.OffScreen;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
@@ -13,15 +14,18 @@ using System.Windows.Forms;
 
 namespace StreamerPlusApp
 {
-    public class subCount
+    public class SubCount : IDisposable
     {
+#pragma warning disable CA1051 // Do not declare visible instance fields
         public Server localServer;
         public ChromiumWebBrowser browser;
-        private string subcount_detect_js;
+        private string SubCount_detect_js;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
-        public subCount()
+
+        public SubCount()
         {
-            subcount_detect_js = @"
+            SubCount_detect_js = @"
 var detector = 'div.metric-value-big.style-scope.ytcd-channel-facts-item';// per refresh selector
 var timoutSec = 15 * 1000;
 var loadOnce = false;
@@ -57,30 +61,38 @@ function TimeOutCall()
         TimeOutCall();
     }
 })();";
-            BrowserSettings offscreen_setting = new BrowserSettings();
-            offscreen_setting.DefaultEncoding = "UTF-8";
-            offscreen_setting.WindowlessFrameRate = 1;
-            offscreen_setting.WebSecurity = CefState.Disabled;
+            BrowserSettings offscreen_setting = new BrowserSettings
+            {
+                DefaultEncoding = "UTF-8",
+                WindowlessFrameRate = 1
+            };
 
             this.browser = new CefSharp.OffScreen.ChromiumWebBrowser("https://studio.youtube.com/", offscreen_setting);
             this.browser.Size = new Size(1, 1);
-            //will get refreshed and change the url to contain the subcount
+            //will get refreshed and change the url to contain the SubCount
             this.browser.AddressChanged += new EventHandler<AddressChangedEventArgs>((object sender, AddressChangedEventArgs e) =>
             {
                 if (e.Address.Contains("?"))
                 {
-                    string newSubcount = e.Address.Split('?')[1];
-                    if (newSubcount != localServer.lastKnow_subcount.ToString() && this.localServer != null)
-                        this.localServer.BroadcastSubcount2Webscokets(newSubcount);
+                    string newSubCount = e.Address.Split('?')[1];
+                    if (newSubCount != localServer.lastKnow_SubCount.ToString(new CultureInfo("en-US")) && this.localServer != null)
+                        this.localServer.BroadcastSubCount2Webscokets(newSubCount);
                 }
             });
             this.browser.FrameLoadEnd += new EventHandler<FrameLoadEndEventArgs>((object sender, FrameLoadEndEventArgs e) =>
             {
                 if (!e.Frame.IsMain)
-                    this.browser.ExecuteScriptAsync(subcount_detect_js);
+                    this.browser.ExecuteScriptAsync(SubCount_detect_js);
             });
             this.localServer = new Server("11111");
             this.localServer.Start();
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)browser).Dispose();
+            ((IDisposable)localServer).Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public void ReloadUrl()
@@ -90,14 +102,15 @@ function TimeOutCall()
     }
 
     #region server
-    public class Server
+    public class Server : IDisposable
     {
         private HttpListener _httpListener = new HttpListener();
-        private Task _responseThread;
-        private bool isClosed = false;
+        private bool isClosed;
         private List<WebSocketLite> userReciver;
 
-        public int lastKnow_subcount = -1;
+#pragma warning disable CA1051 // Do not declare visible instance fields
+        public int lastKnow_SubCount = -1;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public Server(string atPort = "11111")
         {
@@ -110,10 +123,10 @@ function TimeOutCall()
             _httpListener.Start(); // start server (Run application as Administrator!)
             while (!this.isClosed) //if the server is open
             {
-                HttpListenerContext client_request = await _httpListener.GetContextAsync();
+                HttpListenerContext client_request = await _httpListener.GetContextAsync().ConfigureAwait(true);
                 try
                 {
-                    await this.ResponseThread(client_request);
+                    await ResponseThread(client_request).ConfigureAwait(true);
                 }
                 catch (Exception e)
                 {
@@ -123,7 +136,7 @@ function TimeOutCall()
                 }
             }
         }
-        public async void Close()
+        public void Close()
         {
             if (isClosed)
                 return;
@@ -136,24 +149,21 @@ function TimeOutCall()
             {
                 _httpListener.Abort();
             }
-            catch (Exception e) { }
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch (Exception) { }
+#pragma warning restore CA1031 // Do not catch general exception types
         }
 
         private async Task ResponseThread(HttpListenerContext client_request)
         {
             if (client_request.Request.IsWebSocketRequest)
-                await this.HandleWebSocketReq(client_request);
+                await HandleWebSocketReq(client_request).ConfigureAwait(true);
             else
-                await this.HandleHttpReq(client_request);
+                HandleHttpReq(client_request);
         }
-        private async Task HandleHttpReq(HttpListenerContext client_request)
+        private void HandleHttpReq(HttpListenerContext client_request)
         {
-            //if (browser != null && browser.IsBrowserInitialized)
-            //    browser.Reload();
-
             byte[] _responseArray = Encoding.UTF8.GetBytes(@"<html>" + GenHeader() + "\n" + GenBody() + "</html>"); // get the bytes to response
-
-
             client_request.Response.ContentEncoding = Encoding.UTF8;           // this doesnt work??
             client_request.Response.ContentType = "text/html; charset=utf-8"; //Fixxxx
             client_request.Response.OutputStream.Write(_responseArray, 0, _responseArray.Length); // write bytes to the output stream
@@ -182,7 +192,7 @@ function TimeOutCall()
                 caller.Send("{\"error\":\"you cannot send data to the server! only get it..\"}");
             });
 
-            ws.Send(SubcountJSON_msg());
+            ws.Send(SubCountJSON_msg());
 
             userReciver.RemoveAll(item => item == null || item.isDisposed);
 
@@ -190,21 +200,21 @@ function TimeOutCall()
 
         }
 
-        public void BroadcastSubcount2Webscokets(string count)
+        public void BroadcastSubCount2Webscokets(string count)
         {
             userReciver.RemoveAll(item => item == null);
-            long subcount = -1;
-            bool canConvert = long.TryParse(count, out subcount);
-            this.lastKnow_subcount = (int)subcount;
+            long SubCount = -1;
+            bool canConvert = long.TryParse(count, out SubCount);
+            this.lastKnow_SubCount = (int)SubCount;
             foreach (WebSocketLite ws_item in userReciver)
             {
-                ws_item.Send(SubcountJSON_msg());
+                ws_item.Send(SubCountJSON_msg());
             }
         }
 
-        private string SubcountJSON_msg()
+        private string SubCountJSON_msg()
         {
-            return "{\"subcount\":" + this.lastKnow_subcount.ToString() + "}";
+            return "{\"SubCount\":" + lastKnow_SubCount.ToString(new CultureInfo("en-US")) + "}";
         }
 
         #region generator html
@@ -230,12 +240,20 @@ function TimeOutCall()
         {
             return System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + @"\SubCount\body.html");
         }
+
         #endregion
+
+        public void Dispose()
+        {
+            _httpListener = null;
+            userReciver = null;
+            GC.SuppressFinalize(this);
+        }
     }
     public class WebSocketLite
     {
         WebSocket webSocket;
-        public bool isDisposed = false;
+        public bool isDisposed;
         public string Protocol
         {
             get
@@ -299,7 +317,7 @@ function TimeOutCall()
         public async void Dispose()
         {
             this.isDisposed = true;
-            await this.webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "server is closed", CancellationToken.None);
+            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "server is closed", CancellationToken.None);
             this.webSocket.Abort();
             this.webSocket.Dispose();
         }

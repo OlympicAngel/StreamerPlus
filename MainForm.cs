@@ -11,29 +11,30 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net;
+using System.Globalization;
 
 namespace StreamerPlusApp
 {
     public partial class Main : Form
     {
         public string chatID = "";
-        public bool yt_relogin = false;
-        int blurMapRenderCount = 0;
+        public bool yt_relogin;
         public double tempRatio = 0.7;
         Image blurImage;
-        bool isSettingMod = false;
-        public subCount subCount;
+        bool isSettingMod;
+        public SubCount SubCount;
         
         private readonly int constSpacing = 8;
         private const int cCaption = 20;   // Caption bar height;
 
         public Main() : base()
         {
+            
             Util.CheckForUpdates(this);//check for updates from server (current version defined at Util)
             Util.Argreement(this);//if user didnt agreed to last agreement prompt him to
             BrowserFlow.CefSettings();
 
-            subCount = new subCount();
+            SubCount = new SubCount();
 
             InitializeComponent();
             this.LoadingPanel.Visible = true;
@@ -43,12 +44,12 @@ namespace StreamerPlusApp
             Rectangle resolution = Screen.PrimaryScreen.Bounds;
             this.Location = new Point(Math.Max(0, Math.Min(resolution.Width - this.Width, Properties.Settings.Default.posX))
                                  , Math.Max(0, Math.Min(resolution.Height - this.Height, Properties.Settings.Default.posY)));
-            double zoom = double.Parse(Properties.Settings.Default["scale"].ToString());
+            double zoom = double.Parse(Properties.Settings.Default["scale"].ToString(),new CultureInfo("EN-us"));
             double pos = (zoom * (-1)) * 2;
             this.trackBar1.Value = (int)pos;
             DynamicLayOut();
 
-            this.Text = "סטרימר פלוס - " + string.Format("{0:N1}.0", Util.version);
+            this.Text = "סטרימר פלוס - " + string.Format(new CultureInfo("EN-us"), "{0:N1}.0", Util.version);
 
             BrowserFlow.INI(this, this.ChatBrowser, this.StreamlabsBrowser);
 
@@ -97,6 +98,8 @@ namespace StreamerPlusApp
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            if (e == null)
+                return;
             base.OnPaint(e);
             Rectangle rc;
             if (!isSettingMod)
@@ -320,7 +323,7 @@ namespace StreamerPlusApp
         {
             yt_relogin = true;
             this.ToggleLoading(2);
-            this.loadingText.Text = "מחכה לסיגרת\nחלון ההתחברות..\n(לאחר ההתחברות)";
+            loadingText.Text = "מחכה לסיגרת\nחלון ההתחברות..\n(לאחר ההתחברות)";
             this.StreamlabsBrowser.Load("https://www.youtube.com/logout");
         }
         private void StreamlabsLogout_Click(object sender, EventArgs e)
@@ -345,7 +348,7 @@ namespace StreamerPlusApp
         {
 
             string inputText = this.manulChat.Text;
-            if (inputText == null || inputText == "" || inputText == " " || inputText.Contains(" "))
+            if (inputText == null || inputText == " " || inputText.Contains(" "))
             {
                 MessageBox.Show("אנה הזן אחד מהבאים:\n-קישור רגיל של הלייב\n-קישור מקוצר של הלייב.\n-מזהה (ID) של הלייב.", "קלט לא תקין", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.RtlReading);
                 return;
@@ -386,7 +389,7 @@ namespace StreamerPlusApp
             int width = Screen.PrimaryScreen.WorkingArea.Width,
                 height = Screen.PrimaryScreen.WorkingArea.Height;
             
-            string injectScript = @"window.open('https://www.olympicangelabz.com/pages/stream-settings/full.php','_blank', 'location=false,height=" + height.ToString() + ",width=" + width.ToString() + ",top=0,left=0,scrollbars=yes,status=yes');";
+            string injectScript = @"window.open('https://www.olympicangelabz.com/pages/stream-settings/full.php','_blank', 'location=false,height=" + height.ToString(new CultureInfo("EN-us")) + ",width=" + width.ToString(new CultureInfo("EN-us")) + ",top=0,left=0,scrollbars=yes,status=yes');";
             if (ChatBrowser.CanExecuteJavascriptInMainFrame)
                 this.ChatBrowser.ExecuteScriptAsyncWhenPageLoaded(injectScript);
         }
@@ -414,7 +417,7 @@ namespace StreamerPlusApp
         private void Main_FormClosed(object sender, FormClosedEventArgs e)
         {
             Cef.Shutdown();
-            this.subCount.localServer.Close();
+            this.SubCount.localServer.Close();
             Properties.Settings.Default["posX"] = this.Location.X;
             Properties.Settings.Default["posY"] = this.Location.Y;
             Properties.Settings.Default["width"] = this.Width;
@@ -424,7 +427,7 @@ namespace StreamerPlusApp
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             Cef.Shutdown();
-            this.subCount.localServer.Close();
+            this.SubCount.localServer.Close();
             Properties.Settings.Default["posX"] = this.Location.X;
             Properties.Settings.Default["posY"] = this.Location.Y;
             Properties.Settings.Default["width"] = this.Width;
@@ -437,7 +440,7 @@ namespace StreamerPlusApp
         protected override void OnClosed(EventArgs e)
         {
             Cef.Shutdown();
-            this.subCount.localServer.Close();
+            this.SubCount.localServer.Close();
             base.OnClosed(e);
         }
         #endregion

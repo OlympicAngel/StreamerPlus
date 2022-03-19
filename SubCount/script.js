@@ -18,8 +18,8 @@ function creatWebSocket() {
         const data = JSON.parse(e.data);
         if (data.error)
             return console.warn(data.error);
-        if (data.subcount)
-            return OnUpdate(data.subcount);
+        if (data.SubCount)
+            return OnUpdate(data.SubCount);
     }
 }
 
@@ -35,23 +35,23 @@ if (document.getElementById("jq") == null) {
     document.head.appendChild(script);
 }
 
-var currentSubcount = -1;
+var currentSubCount = -1;
 var interval = 15 * 1000;
 window.timeoutPointer = false;
 window.lastFXPointer = undefined;
 function OnUpdate(newSubCount) {
-    if (newSubCount == currentSubcount)
+    if (newSubCount == currentSubCount)
         return;
-    if (currentSubcount == -1) {
+    if (currentSubCount == -1) {
         $("div#channelSubs")[0].innerHTML = (newSubCount.toString());
-        currentSubcount = newSubCount;
+        currentSubCount = newSubCount;
         return;
     }
     if (window.mileStone == undefined)
         window.mileStone = newSubCount - newSubCount % 100 + 100;
 
-    var toAdd = newSubCount - currentSubcount;
-    currentSubcount = newSubCount;
+    var toAdd = newSubCount - currentSubCount;
+    currentSubCount = newSubCount;
     $("div#channelSubs")[0].innerHTML = newSubCount;
 
     if (toAdd < 0)
