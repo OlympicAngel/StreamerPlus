@@ -189,10 +189,17 @@ ytd-channel-switcher-header-renderer::after {
             js["invalidUser"] = @"
             function testFunc()
             {
+                let continueBtn = Array.from(document.querySelectorAll(""#dialog-buttons #confirm-button dom-if + div.label.ytcp-button"")).find(btn=>{return btn.innerText == ""המשך"" || btn.innerText == ""continue""});
+                if(continueBtn){
+                    clearInterval(window.testInterval);
+                    continueBtn.click()
+                    return;
+                }
+
                 var btn = document.querySelector('#features li tp-yt-paper-icon-item[aria-disabled=true]');
                 var loader = document.querySelector('tp-yt-paper-progress#app-loading[hidden]');
-                console.log(btn.getAttribute('tabindex'))
-                console.log(loader)
+                if(!btn || !loader)
+                    return console.log(btn,loader)
 
                 if(btn && loader)
                 {
@@ -204,8 +211,7 @@ ytd-channel-switcher-header-renderer::after {
                 }
             }
             if(window.testInterval == undefined)
-            window.testInterval = setInterval(testFunc,75);
-
+                window.testInterval = setInterval(testFunc,75);
 ";
         }
     }

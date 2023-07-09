@@ -22,6 +22,7 @@ namespace StreamerPlusApp
             { "olympic" , "https://www.youtube.com/OlympicAngel" },
             { "livestream_placeholder", "https://studio.youtube.com/video/{id}/livestreaming"},
             { "minLoginURL","://accounts.google.com"},
+            { "loginChallenge","https://accounts.google.com/signin/v2/challenge"},
             { "youtubeUrl","https://www.youtube.com/"}
         };
         public static Dictionary<string, string> streamlabs = new Dictionary<string, string>() {

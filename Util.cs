@@ -13,7 +13,7 @@ namespace StreamerPlusApp
 {
     static class Util
     {
-        public static double version = 1.4;
+        public static double version = 1.5;
         private static int blurMapRenderCount;
 
         public static uint ColorToUInt(Color color)

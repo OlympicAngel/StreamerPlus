@@ -6,15 +6,17 @@ using System.Windows.Forms;
 using System.Threading;
 using System.IO;
 using System.Drawing;
-using StreamerPlusApp.browserUtil;
 using System.Globalization;
+using StreamerPlusApp.browserUtil;
 
 namespace StreamerPlusApp
 {
     public static class BrowserFlow
     {
         //public static string UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0";
-        public static string UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36";
+        //public static string UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36";
+        public static string UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 /CefSharp Browser" + Cef.CefSharpVersion;
+
         static Dictionary<string, ChromiumWebBrowser> cef = new Dictionary<string, ChromiumWebBrowser>(){
             { "youtube", null },
             { "streamlabs", null }
@@ -23,8 +25,7 @@ namespace StreamerPlusApp
             { "youtube", null },
             { "streamlabs", null }
         };
-        static Thread wait_15sec;
-        static UA_RequestHandler rh = new UA_RequestHandler();
+        public static Thread wait_15sec;
         static bool switching_user;
 
 
@@ -41,10 +42,8 @@ namespace StreamerPlusApp
             cef["youtube"].AddressChanged += new System.EventHandler<CefSharp.AddressChangedEventArgs>(OnPreLoad);
             cef["streamlabs"].AddressChanged += new System.EventHandler<CefSharp.AddressChangedEventArgs>(OnPreLoad);
 
-            cef["streamlabs"].RequestHandler = rh;
-            cef["youtube"].RequestHandler = rh;
-            cef["youtube"].LifeSpanHandler = new CustomLifeSpanHandler();
             cef["streamlabs"].LifeSpanHandler = new CustomLifeSpanHandler();
+
 
             wait_15sec = new Thread(TimeoutThread);
             wait_15sec.Name = "Login Timout";
@@ -80,7 +79,7 @@ namespace StreamerPlusApp
                 Locale = "he",
                 RemoteDebuggingPort = 6968,
                 PersistSessionCookies = true,
-                UserAgent = BrowserFlow.UA,
+                UserAgent = UA,
                 
             })
             {
@@ -269,6 +268,13 @@ namespace StreamerPlusApp
             InjectJS("reLoginWait", browser);
             mainFormRef.yt_relogin = false; //reset the re login blocking state
         }
+        public static void OnChallageLoginPage()
+        {
+            if (wait_15sec.IsAlive)
+            {
+                wait_15sec.Abort();
+            }
+        }
         static void OnRawLiveStreamPage()
         {
             if (!wait_15sec.IsAlive)
@@ -287,6 +293,7 @@ namespace StreamerPlusApp
 
 
             InjectJS(css_js.js["invalidUser"].Replace("{url}", Urls.youtube["select_account"]), cef["streamlabs"]);
+
         }
         static void OnAccountSwitchPage()
         {
@@ -350,10 +357,14 @@ namespace StreamerPlusApp
             InjectCSS("chat", browser);
         }
         #endregion
-
-        static void TimeoutThread()
+        public static void TimeoutThread()
         {
-            Thread.Sleep(20 * 1000);
+            TimeoutThread(true);
+        }
+        public static void TimeoutThread(Boolean wait = true)
+        {
+            if(wait)
+                Thread.Sleep(20 * 1000);
             cef["youtube"].Load(Urls.youtube["chat"] + "LoginError");
             cef["streamlabs"].Load(Urls.streamlabs["events"]);
             MessageBox.Show("נראה שלוקח יותר מידי זמן להתחבר,\nמעביר אותך לדף הבית של סטרימר פלוס - יתכן שתצטרך להתחבר למשתמש שלך בהגדרות.", "תקלה בהתחברות");
@@ -371,8 +382,6 @@ namespace StreamerPlusApp
                 offscreen_setting.WindowlessFrameRate = 5;
                 using (CefSharp.OffScreen.ChromiumWebBrowser tempBrowser = new CefSharp.OffScreen.ChromiumWebBrowser(urlz, offscreen_setting))
                 {
-                    tempBrowser.RequestHandler = new UA_RequestHandler();
-                    tempBrowser.LifeSpanHandler = new CustomLifeSpanHandler();
                     tempBrowser.Size = new Size(10, 10);
                     tempBrowser.FrameLoadEnd += new EventHandler<FrameLoadEndEventArgs>((Object sender, FrameLoadEndEventArgs e) =>
                     {

@@ -145,9 +145,6 @@ D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\StreamerPlusApp.app
 D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\StreamerPlusApp.exe
 D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\StreamerPlusApp.pdb
 D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\he-IL\StreamerPlusApp.resources.dll
-D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\System.Web.dll
-D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\System.Web.xml
-D:\coding\סטרימר פלוס\WindowsFormsApp1\obj\Release\StreamerPlus.csprojAssemblyReference.cache
 D:\coding\סטרימר פלוס\WindowsFormsApp1\obj\Release\StreamerPlusApp.Main.resources
 D:\coding\סטרימר פלוס\WindowsFormsApp1\obj\Release\StreamerPlusApp.Properties.Resources.resources
 D:\coding\סטרימר פלוס\WindowsFormsApp1\obj\Release\StreamerPlusApp.Main.he-IL.resources
@@ -191,3 +188,9 @@ D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\x64\resources.pak
 D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\x64\vk_swiftshader.dll
 D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\x64\vk_swiftshader_icd.json
 D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\x64\vulkan-1.dll
+D:\coding\סטרימר פלוס\WindowsFormsApp1\obj\Release\StreamerPlus.csproj.AssemblyReference.cache
+D:\coding\סטרימר פלוס\WindowsFormsApp1\obj\Release\StreamerPlus.csproj.SuggestedBindingRedirects.cache
+D:\coding\סטרימר פלוס\WindowsFormsApp1\obj\Release\StreamerPlus.GeneratedMSBuildEditorConfig.editorconfig
+D:\coding\סטרימר פלוס\WindowsFormsApp1\obj\Release\StreamerPlus.csproj.CoreCompileInputs.cache
+D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\System.Web.dll
+D:\coding\סטרימר פלוס\WindowsFormsApp1\bin\Release\System.Web.xml
